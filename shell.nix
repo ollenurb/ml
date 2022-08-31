@@ -1,32 +1,40 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # import mach-nix
   mach-nix = import (builtins.fetchGit {
-    url = "https://github.com/DavHau/mach-nix";
-    ref = "refs/tags/3.3.0";
+    url = "https://github.com/DavHau/mach-nix/";
+    ref = "refs/tags/3.5.0";  # update this version
+  }) {
+    python = "python39";
+  };
+
+  # load your requirements
+  machNix = mach-nix.mkPython rec {
+    requirements = builtins.readFile ./requirements.txt;
+  };
+
+  jupyter = import (builtins.fetchGit {
+    url = https://github.com/tweag/jupyterWith;
+    ref = "master";
   }) {};
 
-  overridedPython = mach-nix.mkPython {
-    python = "python38";
-    requirements = ''
-      scikit-learn
-      matplotlib
-      pydotplus
-      graphviz
-      scipy
-      jupyterlab
-    '';
+  iPython = jupyter.kernels.iPythonWith {
+    name = "mach-nix-jupyter";
+    python3 = machNix.python;
+    packages = machNix.python.pkgs.selectPkgs;
+  };
+
+  jupyterEnvironment = jupyter.jupyterlabWith {
+    kernels = [ iPython ];
   };
 in
-pkgs.mkShell {
-  buildInputs = [
-    overridedPython
-    pkgs.graphviz
-  ];
- /* shellHook = '' */
- /*   jupyter-notebook */
- /* ''; */
-}
+  jupyterEnvironment.env
+
+
+
+
+
+
+
 
 
