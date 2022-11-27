@@ -9,7 +9,13 @@ let
   # load your requirements
   machNix = mach-nix.mkPython rec {
     requirements = builtins.readFile ./requirements.txt;
-  };
+    providers.torch = "nixpkgs";
+    overridesPost = [(curr: prev: {
+            torch = prev.torch.override {
+              cudaSupport = true;
+            };
+        })];
+    };
 
   jupyter = import (builtins.fetchGit {
     url = https://github.com/tweag/jupyterWith;
