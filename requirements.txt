@@ -1,5 +1,9 @@
+scipy
+sklearn
+datasets
 torch
 torchvision
 matplotlib
 pandas
 numpy
+setuptools
